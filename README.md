@@ -122,7 +122,7 @@ python run_holdout.py                             # frozen adjudication run
 python score_holdout.py                           # flip rate + correctness
 python -m faisla.evaluation.plot_divergence       # results/divergence.png
 python -m faisla.evaluation.console_export        # results/console_export.json
-python -m pytest tests/ -q                        # 89 tests
+python -m pytest tests/ -q                        # 97 tests
 ```
 
 `run_holdout.py` **refuses to overwrite** an existing results file for a given
