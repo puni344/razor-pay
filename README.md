@@ -112,7 +112,7 @@ Real incidents from this build, all documented in
 Verify rather than trust. From a clean checkout:
 
 ```bash
-pip install "pydantic>=2.7" pyyaml matplotlib pytest
+pip install -r requirements.txt
 
 python validate_scenarios.py                      # 24 specs pass schema + invariants
 python render_evidence.py                         # E0/E3 packets -> data/evidence/

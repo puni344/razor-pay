@@ -1,0 +1,15 @@
+# FAISLA runtime + test dependencies.
+#
+# Floors are the versions the test suite is confirmed green on (Python 3.10.11).
+# Ranges are >= rather than == so the pilot stays installable as the ecosystem
+# moves; if a future release breaks the suite, pin the offender exactly here
+# and record why.
+#
+# There are only four. The corpus, the evidence renderers and the adjudicator
+# are pure stdlib + pydantic by design — no LLM SDK, no HTTP client, no
+# network surface anywhere in the scoring path.
+
+pydantic>=2.7.1      # schema validation + the ground-truth/E0 invariants
+pyyaml>=6.0.3        # scenario spec loading (safe_load only)
+matplotlib>=3.10.9   # results/divergence.png
+pytest>=8.2.0        # test suite
