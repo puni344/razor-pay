@@ -1,0 +1,9 @@
+{
+  "rule_version": "holdout-informed-bugfix-0.2.0",
+  "held_out_n": 18,
+  "flips_all": 17,
+  "flips_non_dup": 15,
+  "held_out_non_dup_count": 15,
+  "reverse_flips": 0,
+  "unexercised_rules": []
+}
