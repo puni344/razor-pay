@@ -1,6 +1,7 @@
 """Compute inter-rater agreement across all raters and report results.
 
-Handles N reviewers. With two independent reviewers this computes three
+Handles N reviewers. With two model reviewers (see "What the reviewers
+were" in CORPUS.md -- they are AI models, not humans) this computes three
 pairwise comparisons:
 
     original_author vs reviewer A

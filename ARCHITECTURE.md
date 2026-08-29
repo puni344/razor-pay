@@ -134,16 +134,19 @@ Applied corrections and their justifications are listed in
 
 ## Second-labeler review (§9.1)
 
-An independent reviewer sees `ScenarioFactsForReview` only — via
+A second-labeler reviewer sees `ScenarioFactsForReview` only — via
 [data/labels/review_packet.md](data/labels/review_packet.md), whose body is
 checked for leaked authorial labels by [check_packet.py](check_packet.py) —
 and records `scope_violation`, `causal_category`, and free-text notes as
-`GroundTruthReview` rows in `data/labels/*.jsonl`.
+`GroundTruthReview` rows in `data/labels/*.jsonl`. **In this corpus both
+reviewers were AI models, not humans**; see "What the reviewers were" in
+[CORPUS.md](CORPUS.md).
 
 [faisla/labeling/agreement.py](faisla/labeling/agreement.py) computes plain
 percent agreement on both fields, overall and per failure class. That number
-gates everything: if the author and an independent reader cannot agree on what
-happened, no adjudicator result computed against this oracle means anything.
+gates everything: if the author and a second labeler working only from the
+recorded facts cannot agree on what happened, no adjudicator result computed
+against this oracle means anything.
 
 ### More than one reviewer
 

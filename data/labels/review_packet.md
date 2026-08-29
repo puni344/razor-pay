@@ -1,5 +1,11 @@
 # FAISLA Ground-Truth Review Packet
 
+> **This packet was issued to two AI model reviewers — Claude
+> (`reviewer_a_independent`) and Gemini (`reviewer_b_independent`) — not to
+> human reviewers.** The instructions below are reproduced exactly as they
+> were issued, including their second-person phrasing. See "What the reviewers
+> were" in [CORPUS.md](../../CORPUS.md).
+
 ## Instructions for Reviewer
 
 For each scenario below, you will see the raw facts of an AI-mediated

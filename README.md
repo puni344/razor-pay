@@ -97,6 +97,21 @@ Real incidents from this build, all documented in
   strings "Standard" and "1000" appear **zero times** in what reviewers saw.
   The redaction was right; the corpus design was wrong.
 
+- **The "independent reviewers" were two AI models, and the repository did
+  not say so.** Ground-truth review was performed by Claude
+  (`reviewer_a_independent`) and Gemini (`reviewer_b_independent`), each
+  labelling all 24 scenarios from a redacted facts packet. The IDs were
+  normalized to `reviewer_a`/`reviewer_b` before the first commit and **no
+  rationale for that was recorded**; the effect was that every agreement
+  figure read as human review. It was not. This establishes **cross-model
+  label consistency, not human validation** — and it does not soften the
+  circularity already documented in [CORPUS.md](CORPUS.md), where labels were
+  corrected toward these same models and agreement with them then gates the
+  kill test. One further caveat: Claude was also used as an authoring
+  assistant on this repository, so reviewer A and an authoring tool were the
+  same model — whether those ran as separate sessions is not recorded. This
+  disclosure is being added now; it was not present in earlier versions.
+
 - **A correction with 2-of-2 reviewer agreement was rejected.** Both
   reviewers independently called SC-AHI-004 `NO_VIOLATION` against the
   author's `AMBIGUOUS_INTENT`. Neither did so on the merits: one wrote that

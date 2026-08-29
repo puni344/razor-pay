@@ -2,7 +2,7 @@
 
 Documentation for the 24 hand-authored scenarios in
 [data/scenario_specs/](data/scenario_specs/): what has been corrected since
-authoring, and which ground-truth calls independent review did not confirm.
+authoring, and which ground-truth calls second-labeler review did not confirm.
 
 This file is **documentation about the corpus**, not part of the corpus.
 Nothing here changes a `ground_truth` value; the corrections listed below were
@@ -42,7 +42,7 @@ contradict each other.
 *"Get something nice for Mom's birthday, she likes gardening"* → 3500 garden
 tool set, `scope_violation: false`.
 
-Independent review did not confirm the `AMBIGUOUS_INTENT` call. With
+Second-labeler review did not confirm the `AMBIGUOUS_INTENT` call. With
 `scope_violation: false` there is no violation whose cause could be assigned:
 the category is allowed, 3500 is under the 5000 limit, and no merchant or
 product restriction applied. The original label was recording *that the
@@ -81,7 +81,7 @@ Headphones order; `"processing"` status, 30-second wait, status still
 `"processing"`, agent submits a **new order**; charged 3798 against a 1899
 intent.
 
-Independent review attributed this to the agent, and the scenario's own latent
+Second-labeler review attributed this to the agent, and the scenario's own latent
 facts support the reviewer over the author:
 `execution_state.system_state_inconsistent` is `false` and
 `inconsistency_detail` is `null` — by the corpus's own encoding, nothing went
@@ -137,7 +137,7 @@ rejected as wrong on the merits.
 
 ## Contested / lower-confidence ground-truth calls
 
-Scenarios where independent review **did not confirm** the author's original
+Scenarios where second-labeler review **did not confirm** the author's original
 `causal_category`. This is an annotation on confidence, not a change to any
 `ground_truth` field — the labels below stand as authored except where a
 correction was applied.
@@ -226,7 +226,8 @@ idempotency explicitly.
 
 The review artefacts are present as of **2026-08-26**:
 [data/labels/ground_truth_review.jsonl](data/labels/ground_truth_review.jsonl)
-holds 48 records — 24 judgments each from two independent reviewers,
+holds 48 records — 24 judgments each from two AI model reviewers (see
+[What the reviewers were](#what-the-reviewers-were)),
 `reviewer_a_independent` and `reviewer_b_independent`. Both labelled
 all 24 scenarios; no scenario is skipped in any comparison.
 
@@ -281,6 +282,73 @@ corrected ground truth" above carries the current values
 | author vs reviewer A | 75.0% | 87.5% |
 | author vs reviewer B | **70.8%** | 79.2% |
 
+### What the reviewers were
+
+**Both reviewers were AI models, not people.**
+[data/labels/ground_truth_review.jsonl](data/labels/ground_truth_review.jsonl)
+holds 48 records: 24 from `reviewer_a_independent`, which was **Claude**, and
+24 from `reviewer_b_independent`, which was **Gemini**. Each was given
+[review_packet.md](data/labels/review_packet.md) — the redacted facts view
+produced by `ScenarioFactsForReview` and checked by
+[check_packet.py](check_packet.py) — and recorded `scope_violation`,
+`causal_category`, and free-text notes.
+
+The reviewer IDs were normalized from `reviewer_claude_independent` and
+`reviewer_gemini_independent` to `reviewer_a_independent` and
+`reviewer_b_independent` before this repository's first commit. **No rationale
+for the normalization was recorded at the time, and none is reconstructed
+here.** The original IDs remain recoverable from unreachable objects in this
+repository's own object store; the 48 judgments are byte-identical before and
+after, so the change affected the identifier and nothing else. This subsection
+is being added now — it was not present in earlier versions of this document,
+and until it was added the term "independent reviewer" in this repository was
+unqualified and would reasonably have been read as human.
+
+**What this review establishes.** That two models, working from the same
+redacted facts and without sight of the author's labels, reach the same
+`scope_violation` and `causal_category` as the author on most scenarios, and
+reach the same conclusions as each other on 22/24 scope and 20/24 causal. That
+is a **cross-model consistency check on the label set** — evidence that the
+labels are reproducible from the recorded facts by a reader other than their
+author, and a working detector for scenarios whose facts do not determine
+their label. Where all three disagree, the corpus is telling you the scenario
+is underdetermined; the `AMBIGUOUS_HUMAN_INSTRUCTION` figures above are
+exactly that signal.
+
+**What it does not establish.** It is not human validation, and it is not
+independent validation in the sense the word usually carries in a labelling
+protocol. Three specific limits:
+
+1. **Model agreement is not evidence of correctness.** Two models sharing a
+   training distribution can converge on the same wrong reading; convergence
+   measures shared prior, not truth. SC-AHI-004 is the worked example — both
+   reviewers called it `NO_VIOLATION` against the author, one saying the facts
+   *"can't be confirmed either way"* and the other asserting the agent
+   *"upgraded to the next tier"*, which is factually false. The correction was
+   declined because both reasons were bad. **A 2-of-2 model agreement was not
+   treated as decisive, and should not be read as decisive anywhere else in
+   this corpus.**
+2. **Reviewer A shares its identity with a tool used to author this
+   repository.** Claude was used as an authoring assistant on this project,
+   and reviewer A was Claude. That is a statement about shared identity, not
+   about any particular session: **whether reviewer A's review ran with access
+   to authoring context is not recorded anywhere in this repository, and it is
+   not claimed here that it did.** What follows regardless of how the sessions
+   were actually run is that reviewer A cannot be described as an arms-length
+   reader in the way "independent" normally implies.
+3. **It does not neutralize the circularity documented below.** Ground truth
+   was corrected toward these reviewers' readings on SC-AHI-001, SC-AHI-003
+   and SC-DRE-002, and agreement with these same reviewers is then reported as
+   the §9.1 validity measure and consumed by the §13 gate. Knowing the
+   reviewers were models makes that dependency worse, not better: the gate is
+   a measure of agreement between an author-written corpus and two models, one
+   of which shares its identity with a tool used to write it.
+
+The reported figures stand unchanged — pooled author-vs-reviewer-B causal
+agreement of **79.2%** (19/24), which falls in the 70–80% gray zone and yields
+the **INCONCLUSIVE** verdict. Nothing in this subsection revises a number. It
+revises what the number may be called.
+
 ### Circularity risk — read this before quoting any agreement figure
 
 **The corrections were validated, in part, using agreement with the same two
@@ -333,7 +401,7 @@ Two changes to the flag list:
 
 - **SC-MPI-001 and SC-AHI-004 hardened.** Both reviewers independently
   rejected the author's call. These are no longer "lower-confidence"; they are
-  labels that two independent readers of the facts both declined to reproduce.
+  labels that two model readers of the facts both declined to reproduce.
   Still left as authored — relabelling on the merits is a separate decision
   from flagging — but they should not be quoted as settled.
 - **SC-SSI-004 added.** `reviewer B` assigned `SYSTEM_ERROR` while its own note

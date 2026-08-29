@@ -6,7 +6,7 @@ across all scenarios, overall and per failure class.
 
 This is the number that determines whether the oracle is trustworthy at all.
 
-Two or more independent reviewers
+Two or more model reviewers
 ---------------------------------
 §9.1 is written for "the second reviewer", singular. This module supports
 N reviewers and computes every pairwise comparison, because with two

@@ -1,7 +1,7 @@
 """Feed the §9.1 agreement figures into evaluate_kill_test().
 
 evaluate_kill_test() consumes ONE scope_agreement / causal_agreement pair.
-With two independent reviewers there are three candidate comparisons and the
+With two model reviewers there are three candidate comparisons and the
 brief does not say which one §13 is meant to consume, so this script runs all
 three rather than adopting a convention silently.
 
