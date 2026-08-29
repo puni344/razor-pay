@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .DS_Store
+
+# Never commit credentials. GROQ_API_KEY (and any future provider key) is
+# read from the environment only - see LiveProvider in faisla/adjudication/llm_budget.py.
+.env
+.env.*
+*.env
