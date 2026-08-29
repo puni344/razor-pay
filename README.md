@@ -122,6 +122,106 @@ Real incidents from this build, all documented in
 
 ---
 
+## AI experiment: does an LLM improve on the regex?
+
+The adjudicator is deterministic. That is a choice, and the honest way to
+defend a choice is to test it, so one function was replaced with a language
+model and the whole pilot was re-run.
+
+**What was replaced.** Exactly one function —
+`deterministic.extract_instruction_budget`, the regex that reads a spending
+cap out of a delegated instruction. It was chosen because the held-out error
+analysis put the accuracy ceiling at scope resolution, and within scope
+resolution the budget comparison is the only step that reads natural language.
+Everything else is a field comparison where a model could add nothing. The
+premise was: *if a language model helps anywhere in this adjudicator, it helps
+here.*
+
+**What was not replaced.** Everything else. The mandate, category, merchant,
+line-item and fulfilment scope rules and both causal ladders are v0.2.0
+verbatim — the swap is done by rebinding a module global at runtime, so
+`deterministic.py` stays **byte-identical** and the claim "only the budget
+extractor changed" is verifiable by `git diff` rather than by reading a
+changelog.
+
+**The result: nothing moved.** Against `openai/gpt-oss-20b` on Groq, 24
+scenarios, 24 live calls:
+
+| | scope | causal | flip (non-dup) |
+|---|---|---|---|
+| v0.2.0 (regex) | 12/18 — 66.7% | 11/18 — 61.1% | 15/15 — 100% |
+| llm-budget-pilot-0.1.0 | 12/18 — 66.7% | 11/18 — 61.1% | 15/15 — 100% |
+
+**Verdict-level disagreements: 0 of 24.** Identical to the decimal. The model
+and the regex extracted the same budget on 23 of 24 scenarios.
+
+### The two findings
+
+**SC-SSI-004 — a genuine recall gap in the regex, with no effect on the
+outcome.** The instruction reads *"Purchase the ErgoChair Pro from
+FurnitureHub, the one at 18999"*. The regex misses it — its patterns cover
+*listed at*, *priced at*, *saw it at*, not *the one at* — and the model
+extracts 18999. **The model is right on the merits**; the principal did name a
+price. It changes nothing, because `E3-S1` fires on `charged > budget` and here
+`charged == budget` exactly. Both versions return `OUT_OF_SCOPE / SYSTEM_ERROR`
+and **both are wrong** against a `NO_VIOLATION` ground truth. Had the charge
+been 19999 the model would have caught a violation the regex misses; the corpus
+contains no such case, so the improvement is real and its relevance is unproven.
+
+**SC-AIE-003 — a prediction that was wrong.** Before running, the expectation
+was that the model might beat the regex here by knowing that ₹3,200 is absurd
+for *"2 kg of organic basmati rice"* — winning on world knowledge rather than
+on reading the record. It did not. It returned `budget_stated: false` and
+stayed wrong in exactly the way the regex is wrong. Across the corpus, all 10
+budgets the model returned appear as literal substrings of their instructions:
+**it invented no number anywhere.** The prediction is recorded here because it
+was made in advance and falsified, not because it was confirmed.
+
+### What it costs that the regex does not
+
+**SC-MCM-002** is the corpus's one genuinely ambiguous instruction — *"I saw it
+listed at 2999"*: reference price, or expected ceiling? At a 200- and a
+1024-token cap the model **degenerated into verbatim repetition** — *"That is a
+price. The instruction might be interpreted as the principal expects to pay
+2999."* over and over — and never emitted an answer. Two live runs aborted
+there. At 2048 it terminates and agrees with the regex, having spent **1818
+completion tokens against a median of 63** across the other 23 scenarios: a 29×
+spread, on the one input where the answer is hard. The final run uses a 4096
+cap, which is headroom over the observed worst case and **not a fix**. The
+failure mode is silent non-termination, not a wrong answer, and the regex has
+no equivalent.
+
+### Why this stays non-authoritative
+
+`llm_budget.py` is an experimental module. It is not on the scoring path, no
+reported number in this repository depends on it, and the headline results come
+from the deterministic adjudicator alone.
+
+That is a deliberate position, not a gap in capability. A system that assigns
+financial fault has to produce the same verdict on the same evidence every
+time, and has to be able to say *which rule fired and why* — a merchant
+disputing an attribution is entitled to that, and so is a regulator. Sampling
+from a model does not offer it: temperature 0 and a fixed seed reduce variance,
+but Groq documents `seed` as best-effort and guarantees no bit-identical
+output. Reproducibility here comes from the **cache**, which replays recorded
+completions with no network and no API key — a substitute for determinism, not
+determinism.
+
+So the experiment's answer is taken at face value: on this corpus, at this
+scale, a language model does not improve fault attribution, and the one thing
+it genuinely does better does not change a single verdict. **A negative result
+that was run, recorded and kept is worth more than an LLM added to the scoring
+path for the look of the thing.**
+
+Full method, deviations and per-scenario data: [PILOT_STATUS.md](PILOT_STATUS.md).
+Reproduce without an API key from the recorded cache:
+
+```bash
+python run_llm_pilot.py --cached     # replays 24 completions, no network
+```
+
+---
+
 ## Reproduce
 
 Verify rather than trust. From a clean checkout:
@@ -137,7 +237,7 @@ python run_holdout.py                             # frozen adjudication run
 python score_holdout.py                           # flip rate + correctness
 python -m faisla.evaluation.plot_divergence       # results/divergence.png
 python -m faisla.evaluation.console_export        # results/console_export.json
-python -m pytest tests/ -q                        # 97 tests
+python -m pytest tests/ -q                        # 155 tests (97 core + 58 pilot)
 ```
 
 `run_holdout.py` **refuses to overwrite** an existing results file for a given

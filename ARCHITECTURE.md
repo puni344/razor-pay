@@ -27,7 +27,18 @@ data/scenario_specs/*.yaml     hand-authored latent facts + ground truth
 
    faisla/evidence/      builds EvidencePackets — NO import path to the oracle
    faisla/adjudication/  consumes EvidencePackets — NO import path to the oracle
+        ├── deterministic.py    the scoring path — every reported number
+        ├── frozen_v0_1_0.py    archived v0.1.0, byte-reproducible
+        └── llm_budget.py       EXPERIMENTAL — not on the scoring path
 ```
+
+`faisla/adjudication/llm_budget.py` is the one component that calls a language
+model. It is **experimental and non-authoritative**: no reported number in this
+repository depends on it, and it reaches the adjudicator only when
+`run_llm_pilot.py` rebinds a module global at runtime, which leaves
+`deterministic.py` byte-identical. Nothing in the default scoring path imports
+it. See [PILOT_STATUS.md](PILOT_STATUS.md) and the README's *AI experiment*
+section for the result (0 of 24 verdicts changed).
 
 `faisla/world/oracle.py` exposes exactly two read functions. Neither may be
 imported anywhere under `adjudication/` or `evidence/`; this is enforced by
