@@ -21,6 +21,21 @@ The two bug fixes moved causal correctness by 22.2 points and moved the flip
 rate by exactly zero. A benchmark scoring sufficiency alone could not tell the
 two rule sets apart.
 
+### What this pilot establishes
+
+One thing, and it does not depend on the adjudicator being any good: **two rule
+sets 22.2 correctness points apart both scored 100% on evidence sufficiency.**
+That is a paired comparison — same corpus, same evidence, one rule set frozen
+before the held-out run and one fixed after it — and the sufficiency metric
+could not tell them apart, so a benchmark reporting sufficiency alone would
+have certified both runs a complete success: the one wrong 11 times out of 18
+and the one wrong 7. It establishes nothing about whether the adjudicator is
+good — the section below publishes a four-line baseline that beats it outright
+— and nothing about whether this corpus can rank methods, which it cannot,
+because its evidence flags were authored in the same pass as its labels. What
+survives is the separation itself: sufficiency and correctness are different
+measurements, and on this run only one of them was moving.
+
 ### Why the 0% and the 100% are not the finding
 
 **The 0% is deductive, not experimental.** It follows from the anchor's field
@@ -84,15 +99,29 @@ Neither reads a mandate, an amount, or a rule.
 constant-scope 5/6 against 6/6 — which is itself a warning about six-scenario
 splits.
 
-**This is a fact about the corpus, not a result about rule engines.** The E3
-booleans were authored in the same pass as the labels sitting beside them, so
-they encode the answer almost perfectly. The clearest case is
-`instruction_flagged_ambiguous`, named here for the first time in this
-repository: it is `True` on **exactly the four `AMBIGUOUS_HUMAN_INSTRUCTION`
-scenarios and `False` on all 20 others**, which makes it a label in boolean
-clothing. It is **the same defect as the degenerate flip metric, one level
-up** — a feature with no independent variance cannot discriminate between
-methods, and neither can a benchmark built on it.
+**This is a fact about the corpus, not a result about rule engines — and it is
+two different defects, only one of which is leakage.**
+
+**The flag-reader result is leakage.** The E3 booleans were authored in the
+same pass as the labels sitting beside them, so they encode the answer almost
+perfectly. The clearest case is `instruction_flagged_ambiguous`, named here for
+the first time in this repository: it is `True` on **exactly the four
+`AMBIGUOUS_HUMAN_INSTRUCTION` scenarios and `False` on all 20 others**, which
+makes it a label in boolean clothing. It is **the same defect as the degenerate
+flip metric, one level up** — a feature with no independent variance cannot
+discriminate between methods, and neither can a benchmark built on it.
+
+**The constant-scope result is not leakage at all — it is base rate.** That
+baseline reads no field whatsoever, so it cannot be exploiting a boolean. It
+scores 94.4% because **17 of the 18 held-out scenarios carry
+`scope_violation: true`** — the sole exception is SC-SSI-004 — so a predictor
+that always answers `OUT_OF_SCOPE` inherits the corpus's own class imbalance
+for free. The consequence is harsher than the flag-reader's, not milder:
+**the adjudicator's 12/18 sits below the majority-class floor**, so on this
+split its scope rules demonstrate no information about scope at all. An earlier
+version of this section attributed both baselines to the booleans; that
+explanation is wrong for the constant, and the corrected one is less
+flattering, not more.
 
 Two consequences follow, and both are load-bearing:
 
@@ -300,12 +329,12 @@ pip install -r requirements.txt
 python validate_scenarios.py                      # 24 specs pass schema + invariants
 python render_evidence.py                         # E0/E3 packets -> data/evidence/
 python compute_agreement.py                       # 3-way reviewer agreement
-# exits 1 on a fresh clone by design - results already exist, see note below
 python run_holdout.py                             # frozen adjudication run
+# exits 1 on a fresh clone by design - results already exist, see note below
 python score_holdout.py                           # flip rate + correctness
 python -m faisla.evaluation.plot_divergence       # results/divergence.png
 python -m faisla.evaluation.console_export        # results/console_export.json
-python -m pytest tests/ -q                        # 155 tests (97 core + 58 pilot)
+python -m pytest tests/ -q                        # 161 tests (97 core + 6 baseline + 58 pilot)
 ```
 
 `run_holdout.py` **refuses to overwrite** an existing results file for a given

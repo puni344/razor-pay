@@ -25,7 +25,7 @@ dispute accepts.
 
 | Anchor | Role |
 |---|---|
-| [Stripe Dispute object](https://docs.stripe.com/api/disputes/object) — the `evidence` hash | **Primary.** 26 named evidence fields; the exhaustive field list E0 may draw from |
+| [Stripe Dispute object](https://docs.stripe.com/api/disputes/object) — the `evidence` hash | **Primary.** 27 named evidence fields; the exhaustive field list E0 may draw from |
 | [Stripe dispute reason categories](https://docs.stripe.com/disputes/categories) | The 8 categories a dispute can be filed under, and the defence guidance per category |
 | Visa Compelling Evidence 3.0 | What "proof of legitimacy" means conventionally: prior undisputed transactions matching on IP address or device ID |
 | RBI, *Limiting Liability of Customers in Unauthorised Electronic Banking Transactions*, DBR.No.Leg.BC.78/09.07.005/2017-18 (6 July 2017) | The conventional **fault-attribution** taxonomy and the burden-of-proof rule |
@@ -38,7 +38,7 @@ citable field-by-field. The RBI circular anchors the *attribution* question
 that `causal_category` asks; Stripe anchors the *evidence* question that E0
 asks.
 
-### The 26 conventional evidence fields
+### The 27 conventional evidence fields
 
 ```
 access_activity_log          customer_signature            shipping_address
@@ -57,7 +57,7 @@ customer_purchase_ip         refund_refusal_explanation
 
 ## Why this makes E0's thinness external, not authored
 
-This is the finding that clears the gate. **Not one of the 26 fields can
+This is the finding that clears the gate. **Not one of the 27 fields can
 express delegated authority.** There is no field for a spending mandate, no
 field for the instruction a principal gave an agent, no field for what an
 agent did on the principal's behalf, and no field for the agent's reasoning.
@@ -99,7 +99,7 @@ it.
 ## Construction rule for E0
 
 > **E0 may contain a field only if that field has a named counterpart in the
-> anchor's 26-field evidence list, or is a core attribute of the dispute
+> anchor's 27-field evidence list, or is a core attribute of the dispute
 > record itself (amount, currency, merchant descriptor, timestamp, status,
 > reason category).**
 
@@ -125,6 +125,22 @@ Excluded from E0 with reasons: `mandate` (no anchor counterpart),
 `catalog_injection_present` / `cart_manipulated` (none — merchant misconduct
 has no self-reported field; the merchant is the party submitting evidence),
 `execution_state.system_state_inconsistent` (none).
+
+### On `uncategorized_text` and `uncategorized_file`
+
+The obvious objection to "no anchor counterpart" is that two of the 27 fields
+are free-text catch-alls, and a party could certainly paste a mandate record
+into `uncategorized_text` or attach one as `uncategorized_file` — those fields
+exist and nothing stops it. The claim here is narrower and survives that: an
+unstructured blob with no schema, no verification, no adjudication semantics
+and no obligation on any party to produce it is a place to attach a document,
+not a field against which delegated authority can be programmatically compared.
+Every other field in the anchor names what it holds, which is what lets a
+dispute process reason over it; `uncategorized_*` names only that something was
+attached, so a mandate submitted there would arrive as prose that no rule can
+read, that the counterparty is under no duty to supply, and whose absence is
+indistinguishable from a mandate that was never granted — which is precisely
+the structural gap E0 is built to expose, not an escape from it.
 
 ### The claim statement is an assertion, not evidence
 

@@ -7,7 +7,7 @@ Every field emitted here traces to a named field in the external anchor
 documented in E0_ANCHOR.md. The construction rule is:
 
     E0 may contain a field only if that field has a named counterpart in the
-    anchor's 26-field evidence list, or is a core attribute of the dispute
+    anchor's 27-field evidence list, or is a core attribute of the dispute
     record itself.
 
 What is deliberately NOT rendered, and why
