@@ -229,6 +229,14 @@ Everything else is a field comparison where a model could add nothing. The
 premise was: *if a language model helps anywhere in this adjudicator, it helps
 here.*
 
+**That reasoning was sound and aimed at the wrong step.** It was recorded before
+the per-scenario error diagnosis, which later found that extraction is not where
+the errors live: the dominant failure is that the evidence model represents an
+authority envelope but not intent, so an agent that stays inside the mandate
+while doing the wrong thing resolves `IN_SCOPE` and the causal ladder is never
+reached. A better budget extractor could not have changed these outcomes — the
+pilot tested the wrong hypothesis correctly.
+
 **What was not replaced.** Everything else. The mandate, category, merchant,
 line-item and fulfilment scope rules and both causal ladders are v0.2.0
 verbatim — the swap is done by rebinding a module global at runtime, so
