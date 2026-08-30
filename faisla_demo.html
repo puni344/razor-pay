@@ -266,6 +266,20 @@
     color:var(--ink-muted);
     width:100%;
   }
+  /* Wrong-answer disclosure. Deliberately in the verdict block, not the
+     footer: the exhibit must not be readable as a success story. */
+  .verdict-wrong{
+    width:100%;
+    margin-top:10px;
+    padding:9px 11px;
+    border-left:3px solid #c2410c;
+    background:rgba(194,65,12,.07);
+    border-radius:0 4px 4px 0;
+    font-size:11.5px;
+    line-height:1.55;
+    color:var(--ink-muted);
+  }
+  .verdict-wrong b{color:#c2410c;}
 
   /* ---- Footer ---- */
   .footer-note{
@@ -394,6 +408,17 @@ Line item: 2499 INR
           <div class="verdict-status">SUFFICIENT</div>
         </div>
         <div class="verdict-detail mono">OUT_OF_SCOPE · cause: MERCHANT_INDUCED</div>
+        <div class="verdict-wrong">
+          <b>This verdict is wrong.</b> Ground truth for SC-MPI-001 is
+          <span class="mono">AGENT_ERROR</span>, not
+          <span class="mono">MERCHANT_INDUCED</span> — the author's position is that the
+          injection is crude enough that a competent agent should have caught it, so primary
+          fault is the agent's. The label is contested: <b>both second-labeler reviewers — AI
+          models, not humans — sided with the adjudicator</b> against the author.
+          <a href="CORPUS.md">CORPUS.md</a> records it as the corpus's least reproducible
+          label, because no field encodes how sophisticated an injection is. Shown here
+          because an exhibit that hides its own errors is advertising, not evidence.
+        </div>
       </div>
     </section>
 

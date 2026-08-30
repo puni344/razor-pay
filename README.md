@@ -44,17 +44,80 @@ determinate cause, with 1 abstention.** A 100% flip rate therefore measures
 non-duplicate flip traces to a single rule firing identically, with near-zero
 variance.
 
-**Correctness is the number that carries information, and it is not
-flag-derived.** E3 does contain merchant- and system-side booleans, and where
-one is set it is strongly predictive (a naive flag-reader scores 10/11 on
-held-out scenarios with a flag). But those flags are set in only **11 of 18**
-held-out scenarios, and they are not what limits accuracy. Errors are
+**Correctness is the number that carries information.** Errors are
 bottlenecked upstream, at scope resolution — which is derived from mandate,
 budget, category and merchant comparisons, not from any flag. Under v0.2.0,
 **6 held-out scenarios are wrong on both scope and cause, 1 on cause alone,
 and 0 on scope alone**: no causal judgment ever rescues a failed scope
-judgment, and fixing scope is what moved correctness 22 points. That is the
-result worth attention.
+judgment, and fixing scope is what moved correctness 22 points. The clause about flags
+describes the rules, not the corpus — and on this corpus a trivial reader of
+those fields outperforms the adjudicator outright; the full baseline comparison
+follows below.
+
+**But perfect scope resolution would not reach 100%, and the reason is
+structural.** The causal ladder has **no `AMBIGUOUS_INTENT` branch at all** —
+the string does not appear in `deterministic.py`, in `frozen_v0_1_0.py`, or in
+`adjudication/schemas.py`. Three held-out scenarios carry `AMBIGUOUS_INTENT` as
+ground truth (SC-AHI-002, SC-AHI-003, SC-AHI-004), so they are **unreachable by
+construction**: no input can make either adjudicator emit the right answer.
+**The causal ceiling is therefore 15/18 = 83.3%**, not 100%, before any rule is
+written. The residual consequence is that ambiguous instructions fall through
+`E3-C5-residual-agent-attribution` to `AGENT_ERROR` by elimination — the
+adjudicator does not decline on ambiguity, it silently blames the agent.
+
+### What a trivial baseline scores
+
+An accuracy figure means nothing without the floor it stands on, so here is the
+floor. `baselines.py` computes two baselines from committed artefacts:
+a **flag-reader** that maps one E3 boolean to one causal category and falls back
+to `AGENT_ERROR`, and a **constant** that always predicts `OUT_OF_SCOPE`.
+Neither reads a mandate, an amount, or a rule.
+
+| held-out (n=18) | causal | scope |
+|---|---|---|
+| flag-reader / always-`OUT_OF_SCOPE` | **17/18 — 94.4%** | **17/18 — 94.4%** |
+| adjudicator v0.2.0 | 11/18 — 61.1% | 12/18 — 66.7% |
+| margin | **−6** | **−5** |
+
+**Both trivial baselines beat the adjudicator on the held-out split.** On dev
+(n=6) the ordering reverses — flag-reader 3/6 against the adjudicator's 4/6,
+constant-scope 5/6 against 6/6 — which is itself a warning about six-scenario
+splits.
+
+**This is a fact about the corpus, not a result about rule engines.** The E3
+booleans were authored in the same pass as the labels sitting beside them, so
+they encode the answer almost perfectly. The clearest case is
+`instruction_flagged_ambiguous`, named here for the first time in this
+repository: it is `True` on **exactly the four `AMBIGUOUS_HUMAN_INSTRUCTION`
+scenarios and `False` on all 20 others**, which makes it a label in boolean
+clothing. It is **the same defect as the degenerate flip metric, one level
+up** — a feature with no independent variance cannot discriminate between
+methods, and neither can a benchmark built on it.
+
+Two consequences follow, and both are load-bearing:
+
+1. **61.1% is a lower bound on a corpus that cannot currently discriminate
+   methods.** It is not evidence that the rules are bad, and a higher number
+   would not have been evidence that they are good. The LLM pilot below is the
+   same lesson from the other direction: swapping a rule for a model moved
+   nothing, because the corpus cannot resolve that comparison either.
+2. **Repairing it is post-submission work, and it would invalidate every
+   number here.** The fix is to delete the booleans and leave the raw artefacts
+   — the injection payload, the cart delta, the inconsistent state — so that
+   *detecting* misconduct becomes part of the task rather than a field lookup.
+   Every figure in this README is computed against the corpus as it stands, and
+   would have to be recomputed after such a change. It has deliberately not
+   been done: rebuilding the corpus after seeing these results is the one edit
+   that would make the numbers unpublishable.
+
+This supersedes an earlier framing in this README, which reported that a naive
+flag-reader scores 10/11 on the 11 held-out scenarios where a merchant- or
+system-side flag is set. That figure is correct but was a **restricted**
+baseline — it excluded the 7 scenarios with no such flag and omitted
+`instruction_flagged_ambiguous` entirely, and it was presented without the
+unrestricted baseline that would have shown the adjudicator losing.
+Reproduce with `python baselines.py`; pinned by
+[tests/test_baselines.py](tests/test_baselines.py).
 
 ---
 
@@ -183,13 +246,18 @@ was made in advance and falsified, not because it was confirmed.
 listed at 2999"*: reference price, or expected ceiling? At a 200- and a
 1024-token cap the model **degenerated into verbatim repetition** — *"That is a
 price. The instruction might be interpreted as the principal expects to pay
-2999."* over and over — and never emitted an answer. Two live runs aborted
-there. At 2048 it terminates and agrees with the regex, having spent **1818
-completion tokens against a median of 63** across the other 23 scenarios: a 29×
-spread, on the one input where the answer is hard. The final run uses a 4096
-cap, which is headroom over the observed worst case and **not a fix**. The
-failure mode is silent non-termination, not a wrong answer, and the regex has
-no equivalent.
+2999."* over and over — and never emitted an answer, tripping the truncation
+guard in `LiveProvider._extract`. Raising the cap to 2048 let it terminate, and
+it then agreed with the regex. The final run uses 4096, which is headroom over
+the worst case observed and **not a fix**. The failure mode is silent
+non-termination rather than a wrong answer, and the regex has no equivalent.
+
+**A caveat on this finding.** It was observed during the live run, but the cache
+schema records only `raw_output` and the parsed value — no token counts, no
+`finish_reason`. **No committed artefact in this repository substantiates the
+token figures, so they are not quoted here**; what survives is the qualitative
+result, which the raised cap in `LiveProvider.MAX_TOKENS` does corroborate.
+Recording per-call usage in the cache is the obvious fix and has not been done.
 
 ### Why this stays non-authoritative
 

@@ -87,16 +87,24 @@ price, or expected ceiling?
 - at `max_tokens=200` and `1024`: the model **degenerated into verbatim
   repetition** — *"That is a price. The instruction might be interpreted as
   the principal expects to pay 2999."* over and over — and never emitted an
-  answer. Two live runs aborted here on the truncation guard.
+  answer, tripping the truncation guard in `LiveProvider._extract`.
 - at `max_tokens=2048`: terminates, returns `2999`, agreeing with the regex.
-- cost: **1818 completion tokens against a median of 63** across the other 23
-  scenarios — a 29× spread, min 53 / max 158 elsewhere.
+- it was markedly more expensive than any other scenario — but see the caveat
+  below before quoting a figure for that.
 
-The final run uses `max_tokens=4096`. That is headroom over the observed worst
-case, **not a fix**. On the corpus's single ambiguous input the model's cost is
-unbounded in a way the regex's is not, and the failure mode is silent
-non-termination rather than a wrong answer. The truncation guard in
-`LiveProvider._extract` exists to keep that visible.
+The final run uses `max_tokens=4096`. That is headroom over the worst case
+observed, **not a fix**. The failure mode is silent non-termination rather than
+a wrong answer, and the regex has no equivalent.
+
+**Caveat on this finding — it is partly unsubstantiated.** The behaviour was
+observed during the live run, but the cache schema records only `raw_output`
+and the parsed value: there is **no token count and no `finish_reason` in any
+committed artefact**, so the per-call costs cannot be reproduced or checked by
+a reader. Specific token figures are therefore **not quoted here**. What
+survives is the qualitative result — degenerate repetition, the guard tripped,
+the cap raised — and the raised `LiveProvider.MAX_TOKENS` corroborates that
+much. Recording per-call usage in the cache is the obvious fix and has not been
+done.
 
 ## Reproducibility
 

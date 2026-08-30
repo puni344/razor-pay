@@ -247,16 +247,18 @@ class LiveProvider:
     SEED = 42
     # gpt-oss is a reasoning model: its internal reasoning tokens are billed
     # against max_tokens even though only `message.content` is returned as the
-    # answer. The first two live runs tripped the truncation guard below, both
-    # times on SC-MCM-002 ("I saw it listed at 2999" -- reference price, or
-    # expected ceiling?). At 1024 the model degenerated into verbatim
-    # repetition of "That is a price. The instruction might be interpreted
-    # as..." and never emitted an answer. At 2048 it terminates and returns
-    # 2999, agreeing with the regex, but spends 1818 completion tokens to do
-    # it against a median of 63 across the other 23 scenarios -- a 29x spread
-    # on the one genuinely ambiguous instruction in the corpus.
+    # answer. Live runs tripped the truncation guard below on SC-MCM-002
+    # ("I saw it listed at 2999" -- reference price, or expected ceiling?): at
+    # 1024 the model degenerated into verbatim repetition of "That is a price.
+    # The instruction might be interpreted as..." and never emitted an answer.
+    # At 2048 it terminates and returns 2999, agreeing with the regex, at a
+    # visibly higher cost than any other scenario.
     #
-    # 4096 is headroom over the observed worst case, not a fix for it. The
+    # No token figure is quoted here: the cache records raw_output and the
+    # parsed value only -- no usage, no finish_reason -- so per-call cost is
+    # not reproducible from any committed artefact. See PILOT_STATUS.md.
+    #
+    # 4096 is headroom over the worst case observed, not a fix for it. The
     # instability is a finding about the approach, and the guard stays as the
     # backstop that makes it visible instead of silent.
     MAX_TOKENS = 4096
