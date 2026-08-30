@@ -156,7 +156,7 @@ Reproduce with `python baselines.py`; pinned by
 |---|---|
 | **[Exhibit — SC-MPI-001](https://puni344.github.io/razor-pay/faisla_demo.html)** | The single clearest case, with an animated evidence reveal. A merchant embeds a fake `"SYSTEM INSTRUCTION"` in its catalog, the agent obeys, and 2499 is spent against an "under 500 rupees" instruction. At E0 the charge looks unremarkable and the injection is invisible; at E3 it is right there in the tool-call log. |
 | **[Interactive console](https://puni344.github.io/razor-pay/faisla_console.html?scenario=SC-MPI-003)** | All 24 scenarios browsable: the E0 and E3 packets a reviewer would actually see, both rule versions' verdicts, and the hidden ground truth on toggle. Opens on SC-MPI-003 — switch the version toggle from v0.1.0 to v0.2.0 and watch `NO_VIOLATION` become `MERCHANT_INDUCED`. |
-| **[Kill-test report](results/kill_test_report.md)** | The full Day-1 result: verdict **INCONCLUSIVE**, why the flip metric was degenerate on this run, both bug fixes with before/after impact, and the scenarios still wrong. |
+| **[Kill-test report](results/kill_test_report.md)** | The full Day-1 result: verdict **INCONCLUSIVE**, why the flip metric was degenerate on this run, both bug fixes with before/after impact, and the scenarios still wrong. Generated 2026-08-26 and predates the trivial-baseline analysis. Its 94.4% figure is the pooled flip rate (17/18 held-out scenarios flipped), not the 94.4% baseline accuracy above; the two figures measure different things. |
 
 ---
 
