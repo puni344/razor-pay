@@ -1,4 +1,4 @@
-"""Generate the clean review packet for human second reviewer.
+"""Generate the clean review packet issued to two AI model reviewers (Claude and Gemini).
 
 Outputs data/labels/review_packet.md containing only the raw scenario
 facts a reviewer needs to independently assign scope_violation and
@@ -28,6 +28,12 @@ ids = get_all_scenario_ids()
 lines = []
 
 lines.append("# FAISLA Ground-Truth Review Packet")
+lines.append("")
+lines.append("> **This packet was issued to two AI model reviewers — Claude")
+lines.append("> (`reviewer_a_independent`) and Gemini (`reviewer_b_independent`) — not to")
+lines.append("> human reviewers.** The instructions below are reproduced exactly as they")
+lines.append("> were issued, including their second-person phrasing. See \"What the reviewers")
+lines.append("> were\" in [CORPUS.md](../../CORPUS.md).")
 lines.append("")
 lines.append("## Instructions for Reviewer")
 lines.append("")
