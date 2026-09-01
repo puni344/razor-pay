@@ -1,4 +1,8 @@
-"""HELD-OUT EVALUATION — single frozen run at rule_version dev-calibration-0.1.0.
+"""HELD-OUT EVALUATION — runs the live adjudicator at the RULE_VERSION that
+faisla/adjudication/deterministic.py ships (currently
+holdout-informed-bugfix-0.2.0). The original frozen run,
+dev-calibration-0.1.0, is archived byte-for-byte in
+faisla/adjudication/frozen_v0_1_0.py and reproducible via reproduce_v0_1_0.py.
 
 Adjudicates every scenario once at E0 and E3 and writes the raw results to
 results/adjudication_<rule_version>.jsonl.
@@ -65,7 +69,7 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r) + "\n")
-    print(f"rule_version = {RULE_VERSION} (FROZEN)")
+    print(f"rule_version = {RULE_VERSION}")
     print(f"adjudicated {len(rows)} scenarios "
           f"({sum(1 for r in rows if r['split']=='holdout')} held-out) -> {OUT}")
 

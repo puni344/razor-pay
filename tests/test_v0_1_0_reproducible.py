@@ -12,7 +12,7 @@ reproducible, because run_holdout.py runs whichever adjudicator is live
 
 These tests pin the recovery path: the archived v0.1.0 source must stay
 byte-preserved, and re-running it must reproduce the committed artefact
-exactly. A failure here means the headline 8/18 can no longer be verified by
+exactly. A failure here means the headline 7/18 can no longer be verified by
 anyone, which is worse than the number being wrong.
 """
 
@@ -22,8 +22,6 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-
-import pytest
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_PROJECT_ROOT))

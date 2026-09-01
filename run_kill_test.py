@@ -5,12 +5,13 @@ With two model reviewers there are three candidate comparisons and the
 brief does not say which one §13 is meant to consume, so this script runs all
 three rather than adopting a convention silently.
 
-The flip parameters (E0/E3 sufficiency) belong to Step 5 and do not exist yet.
-Rather than invent them, this script isolates the AGREEMENT GATE: it sets every
-flip parameter to the value most favourable to CONTINUE, so any non-CONTINUE
-verdict is attributable to agreement alone and is determinate today. Where a
-comparison clears the agreement gate, the verdict is reported as pending Step 5
-rather than guessed.
+The flip parameters (E0/E3 sufficiency) are recorded in
+results/holdout_summary.json, but this script does not read them. It isolates
+the AGREEMENT GATE: every flip parameter is set to the value most favourable to
+CONTINUE, so any non-CONTINUE verdict is attributable to agreement alone and is
+determinate. Where a comparison clears the agreement gate, the verdict is
+reported as CONTINUE — the flip data in results/holdout_summary.json must be
+consulted for the final reading.
 """
 import sys
 from pathlib import Path
@@ -52,7 +53,7 @@ FLIP_OPTIMAL = dict(
 )
 
 print(f"held_out_non_dup_count = {HELD_OUT_NON_DUP} (18 holdout - 3 holdout DRE)")
-print("Flip parameters set to their CONTINUE-optimal values (Step 5 data absent).")
+print("Flip parameters set to their CONTINUE-optimal values (see results/holdout_summary.json).")
 print("=> any non-CONTINUE verdict below is forced by agreement alone.\n")
 
 print("=" * 84)
@@ -73,7 +74,7 @@ for key, r in results.items():
     label = f"{r['rater_a']} vs {r['rater_b']}"
     if len(label) > 46:
         label = label[:45] + "…"
-    note = "" if verdict != "CONTINUE" else "  (agreement gate cleared; pending Step 5)"
+    note = "" if verdict != "CONTINUE" else "  (agreement gate cleared; subject to flip data)"
     print(f"{label:<48} | {r['scope_violation_agreement']:>6.1%} | "
           f"{r['causal_category_agreement']:>6.1%} | {verdict}{note}")
 
@@ -91,10 +92,10 @@ for key, r in results.items():
         which = "scope" if 0.70 <= scope < 0.80 else "causal"
         val = scope if which == "scope" else causal
         print(f"  gate: {which} agreement {val:.1%} in the 70-80% gray zone -> INCONCLUSIVE")
-        print("        determinate today; no Step 5 data can change it")
+        print("        determinate; no flip data can change it")
     else:
         print("  gate: both >= 80%, agreement gate cleared")
-        print("        final verdict depends on Step 5 flip data (not yet collected)")
+        print("        final verdict depends on the flip data in results/holdout_summary.json")
     print()
 
 if len(set(verdicts.values())) > 1:

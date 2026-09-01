@@ -7,11 +7,13 @@ reused verbatim from faisla/adjudication/deterministic.py, which this script
 does not modify.
 
     python run_llm_pilot.py --cached    # replay recorded completions
-    python run_llm_pilot.py --live      # call a provider (NotImplementedError today)
+    python run_llm_pilot.py --live      # call the provider (Groq)
 
-STATUS: never run. No provider is reachable and the cache is empty, so both
-modes stop with a clear error rather than producing numbers. See
-PILOT_STATUS.md.
+STATUS: run. The pilot has been run live against openai/gpt-oss-20b on Groq;
+the recorded completions are committed in
+data/llm_cache/budget_extraction.jsonl and the results in
+results/adjudication_llm-budget-pilot-0.1.0.jsonl. --cached replays the cache:
+no API key, no network. See PILOT_STATUS.md.
 
 Does NOT touch: main, frozen_v0_1_0.py, or either historical results file.
 Writes only results/adjudication_llm-budget-pilot-0.1.0.jsonl.

@@ -19,11 +19,8 @@ Tests:
 from __future__ import annotations
 
 import importlib
-import inspect
 import sys
 from pathlib import Path
-
-import pytest
 
 # Ensure project root is on path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent

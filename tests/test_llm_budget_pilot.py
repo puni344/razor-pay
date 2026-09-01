@@ -32,7 +32,7 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 
 from faisla.adjudication import deterministic as det
 from faisla.adjudication.llm_budget import (
-    BudgetParseError, LiveProvider, PROMPT_VERSION, RULE_VERSION,
+    BudgetParseError, LiveProvider, RULE_VERSION,
     build_prompt, input_hash, parse_completion,
 )
 

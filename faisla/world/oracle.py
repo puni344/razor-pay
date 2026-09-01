@@ -18,8 +18,6 @@ ground_truth off it at the call site.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from faisla.world.generator import load_all_scenario_specs, load_rendered_scenarios
 from faisla.world.models import (
     GroundTruth,
