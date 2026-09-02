@@ -278,13 +278,13 @@ Two evidence conditions, rendered by `faisla/evidence/`:
 §13 returns KILL when `flips_are_manufactured` — *"flips traceable only to E0
 being artificially weak"*. So E0 may not be authored to taste. It is anchored
 to the card-network dispute-evidence record as specified by the Stripe Dispute
-API, whose `evidence` hash enumerates 26 named fields, corroborated against
+API, whose `evidence` hash enumerates 27 named fields, corroborated against
 Visa CE3.0 and the RBI liability circular. The construction rule is:
 
 > E0 may contain a field only if that field has a named counterpart in the
 > anchor's evidence list, or is a core attribute of the dispute record itself.
 
-The finding that clears the gate: **not one of the 26 fields can express
+The finding that clears the gate: **not one of the 27 fields can express
 delegated authority.** The conventional framework treats authorisation as a
 binary identity question — did the cardholder or an authorised representative
 make the payment — and an agent under a mandate is an authorised
